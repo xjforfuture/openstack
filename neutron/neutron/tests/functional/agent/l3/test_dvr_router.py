@@ -393,7 +393,7 @@ class TestDvrRouter(framework.L3AgentTestFramework):
             interface_name = router.get_external_device_name(port['id'])
             self._assert_no_ip_addresses_on_interface(router.ha_namespace,
                                                       interface_name)
-            utils.wait_until_true(lambda: router.ha_state == 'master')
+            utils.wait_until_true(lambda: router.ha_state == 'main')
 
             # Keepalived notifies of a state transition when it starts,
             # not when it ends. Thus, we have to wait until keepalived finishes
@@ -1185,7 +1185,7 @@ class TestDvrRouter(framework.L3AgentTestFramework):
         snat_ports = router.get_snat_interfaces()
         if not snat_ports:
             return
-        if router.is_router_master():
+        if router.is_router_main():
             centralized_floatingips = (
                 router.router[lib_constants.FLOATINGIP_KEY])
             for fip in centralized_floatingips:
@@ -1286,14 +1286,14 @@ class TestDvrRouter(framework.L3AgentTestFramework):
             self.failover_agent, enable_gw=enable_gw,
             enable_centralized_fip=enable_centralized_fip,
             snat_bound_fip=snat_bound_fip)
-        utils.wait_until_true(lambda: router1.ha_state == 'master')
+        utils.wait_until_true(lambda: router1.ha_state == 'main')
         utils.wait_until_true(lambda: router2.ha_state == 'backup')
 
         self._assert_ip_addresses_in_dvr_ha_snat_namespace_with_fip(router1)
         self._assert_no_ip_addresses_in_dvr_ha_snat_namespace_with_fip(router2)
         self.fail_ha_router(router1)
 
-        utils.wait_until_true(lambda: router2.ha_state == 'master')
+        utils.wait_until_true(lambda: router2.ha_state == 'main')
         utils.wait_until_true(lambda: router1.ha_state == 'backup')
 
         self._assert_ip_addresses_in_dvr_ha_snat_namespace_with_fip(router2)
@@ -1306,7 +1306,7 @@ class TestDvrRouter(framework.L3AgentTestFramework):
         router1 = self._create_dvr_ha_router(self.agent, enable_gw=enable_gw)
         router2 = self._create_dvr_ha_router(self.failover_agent, enable_gw)
 
-        utils.wait_until_true(lambda: router1.ha_state == 'master')
+        utils.wait_until_true(lambda: router1.ha_state == 'main')
         utils.wait_until_true(lambda: router2.ha_state == 'backup')
 
         self._assert_ip_addresses_in_dvr_ha_snat_namespace(router1)
@@ -1314,7 +1314,7 @@ class TestDvrRouter(framework.L3AgentTestFramework):
 
         self.fail_ha_router(router1)
 
-        utils.wait_until_true(lambda: router2.ha_state == 'master')
+        utils.wait_until_true(lambda: router2.ha_state == 'main')
         utils.wait_until_true(lambda: router1.ha_state == 'backup')
 
         self._assert_ip_addresses_in_dvr_ha_snat_namespace(router2)
